@@ -133,3 +133,46 @@ SELECT
 FROM scored
 ORDER BY monetary DESC
 LIMIT 50;
+
+/* 11) Monthly Revenue Growth Rate (%) */
+
+WITH monthly_revenue AS (
+  SELECT
+    DATE_TRUNC('month', o.order_date) AS month,
+    SUM(od.unit_price * od.quantity * (1 - COALESCE(od.discount, 0))) AS revenue
+  FROM orders o
+  JOIN order_details od ON od.order_id = o.order_id
+  GROUP BY 1
+),
+growth_calc AS (
+  SELECT
+    month,
+    revenue,
+    LAG(revenue) OVER (ORDER BY month) AS prev_month_revenue
+  FROM monthly_revenue
+)
+SELECT
+  month,
+  ROUND(revenue, 2) AS revenue,
+  ROUND(
+    ((revenue - prev_month_revenue) / prev_month_revenue) * 100,
+    2
+  ) AS growth_percentage
+FROM growth_calc
+ORDER BY month;
+
+/* 12) Customer Revenue Ranking */
+
+SELECT
+  c.customer_id,
+  c.company_name,
+  SUM(od.unit_price * od.quantity * (1 - COALESCE(od.discount, 0))) AS total_revenue,
+  RANK() OVER (
+    ORDER BY SUM(od.unit_price * od.quantity * (1 - COALESCE(od.discount, 0))) DESC
+  ) AS revenue_rank
+FROM customers c
+JOIN orders o ON o.customer_id = c.customer_id
+JOIN order_details od ON od.order_id = o.order_id
+GROUP BY c.customer_id, c.company_name
+ORDER BY revenue_rank
+LIMIT 20;
