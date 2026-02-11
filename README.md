@@ -35,6 +35,21 @@ The focus is on:
 - Business KPI calculations
 
 ---
+##  How to Run
+
+- Open `queries.sql` and execute queries in your SQL client.
+- The queries are written for a typical sales schema (Northwind-like).
+- If your table/column names differ, adjust JOIN keys accordingly.
+
+##  Assumed Tables
+
+- `orders` (order_id, customer_id, employee_id, order_date, shipped_date, ship_via)
+- `order_details` (order_id, product_id, unit_price, quantity, discount)
+- `products` (product_id, product_name)
+- `customers` (customer_id, company_name, country)
+- `employees` (employee_id, first_name, last_name)
+- `shippers` (shipper_id, company_name)
+
 
 ## Key KPIs
 
